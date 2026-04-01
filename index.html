@@ -106,22 +106,80 @@
     letter-spacing: 0.04em;
   }
 
+  .header-images {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin: 16px 0 12px;
+  }
+
+  .header-center {
+    text-align: center;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .circle-frame {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 20px rgba(201,168,76,0.15), inset 0 0 12px rgba(0,0,0,0.5);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    position: relative;
+  }
+
+  .circle-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .circle-frame svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  @media (min-width: 480px) {
+    .circle-frame { width: 110px; height: 110px; }
+    .header-images { gap: 32px; }
+  }
+
+  @media (min-width: 768px) {
+    .circle-frame { width: 130px; height: 130px; border-width: 3px; }
+    .header-images { gap: 40px; }
+  }
+
   .app-title {
     font-family: var(--font-serif);
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 300;
     color: var(--gold-soft);
     letter-spacing: 0.02em;
     line-height: 1.2;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .app-subtitle {
     font-family: var(--font-serif);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 300;
     color: var(--text-muted);
     font-style: italic;
+  }
+
+  @media (min-width: 480px) {
+    .app-title { font-size: 2rem; }
+    .app-subtitle { font-size: 0.95rem; }
+  }
+
+  @media (min-width: 768px) {
+    .app-title { font-size: 2.4rem; }
   }
 
   /* === PROGRESS BAR === */
@@ -604,6 +662,8 @@
     .cross-symbol { color: #555 !important; }
     .cross-symbol a { color: #555 !important; }
     .app-footer { color: #888 !important; }
+    .circle-frame { border-color: #999 !important; box-shadow: none !important; }
+    .header-images { gap: 16px !important; }
     .progress-container, .progress-labels, .nav-buttons,
     .export-buttons, .btn-restart, .btn-start,
     .screen:not(.print-target) { display: none !important; }
@@ -625,7 +685,6 @@
 
   /* === RESPONSIVE === */
   @media (max-width: 480px) {
-    .app-title { font-size: 1.6rem; }
     .card { padding: 22px 18px; }
     .prompt-textarea { min-height: 90px; }
     .movement-title { font-size: 1.5rem; }
@@ -633,7 +692,6 @@
 
   @media (min-width: 768px) {
     .app-container { padding: 28px 24px 100px; }
-    .app-title { font-size: 2.4rem; }
     .card { padding: 32px 28px; }
   }
 
@@ -650,8 +708,24 @@
   <!-- HEADER -->
   <header class="app-header">
     <div class="cross-symbol">The Call to Holiness<a href="https://thecalltoholiness.com" target="_blank">thecalltoholiness.com</a></div>
-    <h1 class="app-title">Lectio Divina</h1>
-    <p class="app-subtitle">Meditating with the Word of God</p>
+
+    <div class="header-images">
+      <!-- Left: Christ Blessing (Hans Memling, public domain) -->
+      <div class="circle-frame" id="christFrame">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Hans_Memling_-_Christ_Giving_His_Blessing_-_WGA14854.jpg/400px-Hans_Memling_-_Christ_Giving_His_Blessing_-_WGA14854.jpg" alt="Christ Blessing — Hans Memling" loading="eager">
+      </div>
+
+      <!-- Center: Title -->
+      <div class="header-center">
+        <h1 class="app-title">Lectio Divina</h1>
+        <p class="app-subtitle">Meditating with the Word of God</p>
+      </div>
+
+      <!-- Right: St. Benedict (Fra Angelico, public domain) -->
+      <div class="circle-frame" id="benedictFrame">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Fra_Angelico_052.jpg/400px-Fra_Angelico_052.jpg" alt="St. Benedict — Fra Angelico" loading="eager">
+      </div>
+    </div>
   </header>
 
   <!-- PROGRESS -->
