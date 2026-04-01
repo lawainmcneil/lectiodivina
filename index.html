@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lectio Divina — Meditating with the Word of God</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-deep: #0d0f14;
+    --bg-card: #161921;
+    --bg-input: #1c2029;
+    --bg-input-focus: #22262f;
+    --border: #2a2e3a;
+    --border-light: #363b4a;
+    --gold: #c9a84c;
+    --gold-soft: #d4b86a;
+    --gold-dim: rgba(201, 168, 76, 0.15);
+    --gold-glow: rgba(201, 168, 76, 0.08);
+    --text: #e8e4dc;
+    --text-muted: #9a9589;
+    --text-dim: #6b6760;
+    --accent-warm: #8b6914;
+    --red-soft: #c45c5c;
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-deep);
+    color: var(--text);
+    min-height: 100dvh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* === AMBIENT BACKGROUND === */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(201,168,76,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(139,105,20,0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === LAYOUT === */
+  .app-container {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 16px 100px;
+    min-height: 100dvh;
+  }
+
+  /* === HEADER === */
+  .app-header {
+    text-align: center;
+    padding: 32px 0 24px;
+  }
+
+  .cross-symbol {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+    opacity: 0.9;
+  }
+
+  .cross-symbol a {
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-family: var(--font-sans);
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+    display: block;
+    margin-top: 2px;
+    transition: opacity 0.3s;
+  }
+
+  .cross-symbol a:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .app-footer {
+    text-align: center;
+    padding: 40px 0 20px;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  .app-title {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--gold-soft);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .app-subtitle {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* === PROGRESS BAR === */
+  .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 28px 0 32px;
+    padding: 0 4px;
+  }
+
+  .progress-step {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
+    cursor: pointer;
+  }
+
+  .progress-step.completed {
+    background: var(--gold);
+    box-shadow: 0 0 8px rgba(201,168,76,0.3);
+  }
+
+  .progress-step.active {
+    background: var(--gold-soft);
+    box-shadow: 0 0 12px rgba(201,168,76,0.4);
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin: -20px 0 28px;
+    padding: 0 0;
+  }
+
+  .progress-label {
+    font-family: var(--font-serif);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex: 1;
+    text-align: center;
+    transition: color 0.3s;
+    cursor: pointer;
+  }
+
+  .progress-label.active, .progress-label.completed {
+    color: var(--gold);
+  }
+
+  /* === SCREENS === */
+  .screen {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .screen.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === CARDS === */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+  }
+
+  .card-glow {
+    box-shadow: 0 0 40px rgba(201,168,76,0.04), inset 0 1px 0 rgba(201,168,76,0.05);
+  }
+
+  /* === PRAYER TEXT === */
+  .prayer-block {
+    background: var(--gold-glow);
+    border-left: 2px solid var(--gold);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+
+  .prayer-label {
+    font-family: var(--font-serif);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 10px;
+  }
+
+  .prayer-text {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  /* === SCRIPTURE INPUT === */
+  .scripture-section { margin-top: 24px; }
+
+  .section-label {
+    font-family: var(--font-serif);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+  }
+
+  .scripture-ref-input,
+  .scripture-text-input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+    resize: none;
+  }
+
+  .scripture-ref-input:focus,
+  .scripture-text-input:focus {
+    border-color: var(--gold);
+    background: var(--bg-input-focus);
+  }
+
+  .scripture-text-input {
+    min-height: 100px;
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.7;
+  }
+
+  .scripture-ref-input::placeholder,
+  .scripture-text-input::placeholder {
+    color: var(--text-dim);
+  }
+
+  /* === MOVEMENT SCREENS === */
+  .movement-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .movement-number {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 6px;
+  }
+
+  .movement-title {
+    font-family: var(--font-serif);
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: var(--gold-soft);
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .movement-latin {
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .movement-description {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-style: italic;
+    margin-bottom: 24px;
+    padding: 0 4px;
+  }
+
+  .movement-quote {
+    background: var(--gold-glow);
+    border-left: 2px solid rgba(201,168,76,0.3);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    font-family: var(--font-serif);
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    line-height: 1.65;
+    font-style: italic;
+  }
+
+  .quote-source {
+    display: block;
+    margin-top: 8px;
+    font-style: normal;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  /* === PROMPT FIELDS === */
+  .prompt-group {
+    margin-bottom: 20px;
+  }
+
+  .prompt-label {
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gold-soft);
+    margin-bottom: 4px;
+  }
+
+  .prompt-hint {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .prompt-textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    padding: 14px 16px;
+    min-height: 110px;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .prompt-textarea:focus {
+    border-color: var(--gold);
+    background: var(--bg-input-focus);
+  }
+
+  .prompt-textarea::placeholder {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* === SCRIPTURE DISPLAY (on movement pages) === */
+  .scripture-display {
+    background: var(--gold-glow);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .scripture-display-ref {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .scripture-display-text {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--text);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* === NAVIGATION BUTTONS === */
+  .nav-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    padding-bottom: 20px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 16px 20px;
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-back {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .btn-back:hover, .btn-back:active {
+    background: var(--bg-input-focus);
+    border-color: var(--border-light);
+    color: var(--text);
+  }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--accent-warm) 100%);
+    color: #0d0f14;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.2);
+  }
+
+  .btn-next:hover, .btn-next:active {
+    box-shadow: 0 6px 28px rgba(201,168,76,0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-next:active {
+    transform: translateY(0);
+  }
+
+  .btn-start {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--accent-warm) 100%);
+    color: #0d0f14;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 18px;
+    box-shadow: 0 4px 24px rgba(201,168,76,0.25);
+    width: 100%;
+    margin-top: 28px;
+  }
+
+  .btn-start:hover, .btn-start:active {
+    box-shadow: 0 6px 32px rgba(201,168,76,0.4);
+    transform: translateY(-1px);
+  }
+
+  /* === SUMMARY SCREEN === */
+  .summary-movement {
+    margin-bottom: 28px;
+  }
+
+  .summary-movement-title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--gold-soft);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .summary-field {
+    margin-bottom: 14px;
+  }
+
+  .summary-field-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .summary-field-text {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .summary-field-text.empty {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* === EXPORT BUTTONS === */
+  .export-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .btn-export {
+    flex: 1;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-export:hover, .btn-export:active {
+    background: var(--gold-dim);
+  }
+
+  .btn-export-primary {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--accent-warm) 100%);
+    color: #0d0f14;
+    border: none;
+    font-weight: 600;
+  }
+
+  .btn-restart {
+    width: 100%;
+    padding: 14px;
+    margin-top: 12px;
+    border-radius: 12px;
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+  }
+
+  .btn-restart:hover {
+    border-color: var(--red-soft);
+    color: var(--red-soft);
+  }
+
+  /* === DIVIDER === */
+  .divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.3;
+    margin: 20px auto;
+  }
+
+  /* === PRINT STYLES === */
+  @media print {
+    body {
+      background: #fff !important;
+      color: #1a1a1a !important;
+      font-size: 11pt;
+    }
+    body::before { display: none; }
+    .app-container { max-width: 100%; padding: 0; }
+    .app-header { padding: 16px 0; }
+    .app-title { color: #1a1a1a !important; font-size: 18pt; }
+    .app-subtitle { color: #555 !important; }
+    .cross-symbol { color: #555 !important; }
+    .cross-symbol a { color: #555 !important; }
+    .app-footer { color: #888 !important; }
+    .progress-container, .progress-labels, .nav-buttons,
+    .export-buttons, .btn-restart, .btn-start,
+    .screen:not(.print-target) { display: none !important; }
+    .screen.print-target { display: block !important; }
+    .card { background: #fff !important; border: 1px solid #ccc; padding: 16px; page-break-inside: avoid; }
+    .prayer-block { background: #f8f6f0 !important; border-left-color: #9a8540 !important; }
+    .prayer-text, .prayer-label { color: #1a1a1a !important; }
+    .prayer-label { color: #6b5a1e !important; }
+    .scripture-display { background: #f8f6f0 !important; border-color: #ccc !important; }
+    .scripture-display-ref { color: #6b5a1e !important; }
+    .scripture-display-text { color: #1a1a1a !important; }
+    .summary-movement-title { color: #6b5a1e !important; border-bottom-color: #ccc !important; }
+    .summary-field-label { color: #555 !important; }
+    .summary-field-text { color: #1a1a1a !important; }
+    .summary-field-text.empty { color: #999 !important; }
+    .movement-quote { background: #f8f6f0 !important; border-left-color: #ccc !important; }
+    .movement-quote, .quote-source { color: #555 !important; }
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 480px) {
+    .app-title { font-size: 1.6rem; }
+    .card { padding: 22px 18px; }
+    .prompt-textarea { min-height: 90px; }
+    .movement-title { font-size: 1.5rem; }
+  }
+
+  @media (min-width: 768px) {
+    .app-container { padding: 28px 24px 100px; }
+    .app-title { font-size: 2.4rem; }
+    .card { padding: 32px 28px; }
+  }
+
+  /* === AUTO-GROW TEXTAREA === */
+  .prompt-textarea, .scripture-text-input {
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="cross-symbol">The Call to Holiness<a href="https://thecalltoholiness.com" target="_blank">thecalltoholiness.com</a></div>
+    <h1 class="app-title">Lectio Divina</h1>
+    <p class="app-subtitle">Meditating with the Word of God</p>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-container" id="progressBar">
+    <div class="progress-step" data-step="0" onclick="goToStep(0)"></div>
+    <div class="progress-step" data-step="1" onclick="goToStep(1)"></div>
+    <div class="progress-step" data-step="2" onclick="goToStep(2)"></div>
+    <div class="progress-step" data-step="3" onclick="goToStep(3)"></div>
+    <div class="progress-step" data-step="4" onclick="goToStep(4)"></div>
+    <div class="progress-step" data-step="5" onclick="goToStep(5)"></div>
+    <div class="progress-step" data-step="6" onclick="goToStep(6)"></div>
+  </div>
+  <div class="progress-labels" id="progressLabels">
+    <span class="progress-label" onclick="goToStep(0)">Begin</span>
+    <span class="progress-label" onclick="goToStep(1)">Lectio</span>
+    <span class="progress-label" onclick="goToStep(2)">Meditatio</span>
+    <span class="progress-label" onclick="goToStep(3)">Oratio</span>
+    <span class="progress-label" onclick="goToStep(4)">Contemplatio</span>
+    <span class="progress-label" onclick="goToStep(5)">Actio</span>
+    <span class="progress-label" onclick="goToStep(6)">Review</span>
+  </div>
+
+  <!-- SCREEN 0: BEGIN -->
+  <div class="screen active" id="screen-0">
+    <div class="prayer-block">
+      <div class="prayer-label">Opening Prayer</div>
+      <p class="prayer-text">Come Holy Spirit, fill the hearts of your faithful and kindle in them the fire of your love. Send forth your Spirit and they shall be created. And You shall renew the face of the earth.</p>
+      <br>
+      <p class="prayer-text">O, God, who by the light of the Holy Spirit, did instruct the hearts of the faithful, grant that by the same Holy Spirit we may be truly wise and ever enjoy His consolations, Through Christ Our Lord, Amen.</p>
+    </div>
+
+    <div class="scripture-section">
+      <div class="section-label">Scripture Passage</div>
+      <input type="text" class="scripture-ref-input" id="scriptureRef" placeholder="e.g. Luke 11:9" autocomplete="off">
+      <textarea class="scripture-text-input" id="scriptureText" placeholder="Enter the Scripture text here..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <button class="btn btn-start" onclick="nextStep()">Begin Lectio Divina</button>
+  </div>
+
+  <!-- SCREEN 1: LECTIO -->
+  <div class="screen" id="screen-1">
+    <div class="movement-header">
+      <div class="movement-number">First Movement</div>
+      <h2 class="movement-title">Lectio</h2>
+      <div class="movement-latin">Reading</div>
+    </div>
+
+    <div class="scripture-display" id="scriptureDisplay1"></div>
+
+    <p class="movement-description">Ask God to use your intellect in order to seek the objective meaning of the sacred text.</p>
+
+    <div class="movement-quote">
+      "It opens with the reading (Lectio) of a text, which leads to a desire to understand its true content: what does the biblical text say in itself? Without this, there is always a risk that the text will become a pretext for never moving beyond our ideas."
+      <span class="quote-source">— Verbum Domini, §87</span>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Characters</div>
+      <div class="prompt-hint">Who are the characters in the reading?</div>
+      <textarea class="prompt-textarea" id="lectio-characters" placeholder="Reflect on who appears in this passage..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Circumstances</div>
+      <div class="prompt-hint">Events, When, How, Where, & Why?</div>
+      <textarea class="prompt-textarea" id="lectio-circumstances" placeholder="What is happening and in what context..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Teachings</div>
+      <div class="prompt-hint">What does the reading say?</div>
+      <textarea class="prompt-textarea" id="lectio-teachings" placeholder="What truths does this passage communicate..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-back" onclick="prevStep()">Back</button>
+      <button class="btn btn-next" onclick="nextStep()">Meditatio →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: MEDITATIO -->
+  <div class="screen" id="screen-2">
+    <div class="movement-header">
+      <div class="movement-number">Second Movement</div>
+      <h2 class="movement-title">Meditatio</h2>
+      <div class="movement-latin">Meditation</div>
+    </div>
+
+    <div class="scripture-display" id="scriptureDisplay2"></div>
+
+    <p class="movement-description">Meditate on the Sacred Text. Using your heart, discover what the text is saying to you.</p>
+
+    <div class="movement-quote">
+      "Next comes meditation (Meditatio), which asks: What does the biblical text say to us? Here, each person, individually but also as a member of the community, must let himself or herself be moved and challenged."
+      <span class="quote-source">— Verbum Domini, §87</span>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Assimilation</div>
+      <div class="prompt-hint">What is the text telling me?</div>
+      <textarea class="prompt-textarea" id="meditatio-assimilation" placeholder="What is God speaking to my heart..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Association</div>
+      <div class="prompt-hint">How does it affect my life?</div>
+      <textarea class="prompt-textarea" id="meditatio-association" placeholder="How does this connect to my daily life..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Correlation</div>
+      <div class="prompt-hint">What does it remind me of?</div>
+      <textarea class="prompt-textarea" id="meditatio-correlation" placeholder="What memories, experiences, or other Scriptures come to mind..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-back" onclick="prevStep()">← Lectio</button>
+      <button class="btn btn-next" onclick="nextStep()">Oratio →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: ORATIO -->
+  <div class="screen" id="screen-3">
+    <div class="movement-header">
+      <div class="movement-number">Third Movement</div>
+      <h2 class="movement-title">Oratio</h2>
+      <div class="movement-latin">Prayer</div>
+    </div>
+
+    <div class="scripture-display" id="scriptureDisplay3"></div>
+
+    <p class="movement-description">Pray with the Sacred Text. We knock on the door of Christ by speaking to Him in prayer.</p>
+
+    <div class="movement-quote">
+      "Following this, comes prayer (Oratio), which asks the question: what do we say to the Lord in response to His word? Prayer, as petition, intercession, thanksgiving, and praise, is the primary way by which the Word transforms us."
+      <span class="quote-source">— Verbum Domini, §87</span>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Petition</div>
+      <div class="prompt-hint">What is the text asking me to do or change?</div>
+      <textarea class="prompt-textarea" id="oratio-petition" placeholder="Lord, I hear you calling me to..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Intercession</div>
+      <div class="prompt-hint">That God may give me the grace to do it.</div>
+      <textarea class="prompt-textarea" id="oratio-intercession" placeholder="Grant me the grace to..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Thanksgiving</div>
+      <div class="prompt-hint">Thank Him for the gift(s).</div>
+      <textarea class="prompt-textarea" id="oratio-thanksgiving" placeholder="I thank you, Lord, for..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Praise</div>
+      <div class="prompt-hint">In God's providence to achieve the goal.</div>
+      <textarea class="prompt-textarea" id="oratio-praise" placeholder="I praise you for your providence in..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-back" onclick="prevStep()">← Meditatio</button>
+      <button class="btn btn-next" onclick="nextStep()">Contemplatio →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: CONTEMPLATIO -->
+  <div class="screen" id="screen-4">
+    <div class="movement-header">
+      <div class="movement-number">Fourth Movement</div>
+      <h2 class="movement-title">Contemplatio</h2>
+      <div class="movement-latin">Contemplation</div>
+    </div>
+
+    <div class="scripture-display" id="scriptureDisplay4"></div>
+
+    <p class="movement-description">Utilizing the passive act of contemplation — do nothing. Let God open to you and reveal to you whatsoever, however, and whenever.</p>
+
+    <div class="movement-quote">
+      "Next comes contemplation (Contemplatio), during which we take up, as a gift from God, his own way of seeing and judging reality, and ask ourselves what conversion of mind, heart, and life is the Lord asking of us? [...] Contemplation aims at creating within us a truly wise and discerning vision of reality, as God sees it, and at forming within us 'the mind of Christ' (1 Cor 2:16)."
+      <span class="quote-source">— Verbum Domini, §87</span>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Contemplate</div>
+      <div class="prompt-hint">God's love through the message He has given me.</div>
+      <textarea class="prompt-textarea" id="contemplatio-contemplate" placeholder="Rest in silence and receive what God reveals..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Comprehend</div>
+      <div class="prompt-hint">That I am part of His plan & that He loves me.</div>
+      <textarea class="prompt-textarea" id="contemplatio-comprehend" placeholder="I understand now that..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Taste</div>
+      <div class="prompt-hint">I enjoy the beauty of His gifts & the healing power of mercy.</div>
+      <textarea class="prompt-textarea" id="contemplatio-taste" placeholder="I savor the sweetness of..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-back" onclick="prevStep()">← Oratio</button>
+      <button class="btn btn-next" onclick="nextStep()">Actio →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: ACTIO -->
+  <div class="screen" id="screen-5">
+    <div class="movement-header">
+      <div class="movement-number">Fifth Movement</div>
+      <h2 class="movement-title">Actio</h2>
+      <div class="movement-latin">Action</div>
+    </div>
+
+    <div class="scripture-display" id="scriptureDisplay5"></div>
+
+    <p class="movement-description">What is the active resolution to make the Sacred Text come to life: Using the power of the will, cooperate with God by grace to act upon the Word.</p>
+
+    <div class="movement-quote">
+      "The process of Lectio Divina is not concluded until it arrives at action (Actio), which moves the believer to make his or her life a gift for others in charity. We find the supreme synthesis and fulfillment of this process in the Mother of God. For every member of the faithful Mary is the model of docile acceptance of God's Word, for she 'kept all of these things, pondering them in her heart' (Lk 2:19; 2:51)."
+      <span class="quote-source">— Verbum Domini, §87</span>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Recognize</div>
+      <div class="prompt-hint">What is it that I am supposed to do?</div>
+      <textarea class="prompt-textarea" id="actio-recognize" placeholder="I am called to..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Plan</div>
+      <div class="prompt-hint">How am I to do it?</div>
+      <textarea class="prompt-textarea" id="actio-plan" placeholder="I will begin by..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="prompt-group">
+      <div class="prompt-label">Evaluate</div>
+      <div class="prompt-hint">How am I progressing?</div>
+      <textarea class="prompt-textarea" id="actio-evaluate" placeholder="I will measure my growth by..." oninput="autoGrow(this)"></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-back" onclick="prevStep()">← Contemplatio</button>
+      <button class="btn btn-next" onclick="nextStep()">Review & Finish →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: SUMMARY -->
+  <div class="screen" id="screen-6">
+    <div class="movement-header">
+      <div class="movement-number">Complete</div>
+      <h2 class="movement-title">Review</h2>
+      <div class="movement-latin">Your Lectio Divina</div>
+    </div>
+
+    <div class="scripture-display" id="scriptureDisplay6"></div>
+
+    <div class="card card-glow" id="summaryContent">
+      <!-- Filled by JS -->
+    </div>
+
+    <div class="export-buttons">
+      <button class="btn-export btn-export-primary" onclick="exportPDF()">Export PDF</button>
+      <button class="btn-export" onclick="printView()">Print</button>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-back" onclick="prevStep()">← Back to Actio</button>
+    </div>
+
+    <button class="btn-restart" onclick="confirmRestart()">Start New Lectio Divina</button>
+  </div>
+
+  <footer class="app-footer">&copy; 2026 Mission Surrender, LLC. All rights reserved.</footer>
+
+</div>
+
+<script>
+  // === STATE ===
+  let currentStep = 0;
+  const totalSteps = 7; // 0-6
+
+  // === NAVIGATION ===
+  function showScreen(step) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'print-target'));
+    const screen = document.getElementById('screen-' + step);
+    if (screen) screen.classList.add('active');
+    updateProgress(step);
+    updateScriptureDisplays();
+    if (step === 6) buildSummary();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextStep() {
+    if (currentStep < totalSteps - 1) {
+      currentStep++;
+      showScreen(currentStep);
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 0) {
+      currentStep--;
+      showScreen(currentStep);
+    }
+  }
+
+  function goToStep(step) {
+    if (step >= 0 && step < totalSteps) {
+      currentStep = step;
+      showScreen(currentStep);
+    }
+  }
+
+  function updateProgress(step) {
+    document.querySelectorAll('.progress-step').forEach((el, i) => {
+      el.classList.remove('active', 'completed');
+      if (i < step) el.classList.add('completed');
+      if (i === step) el.classList.add('active');
+    });
+    document.querySelectorAll('.progress-label').forEach((el, i) => {
+      el.classList.remove('active', 'completed');
+      if (i < step) el.classList.add('completed');
+      if (i === step) el.classList.add('active');
+    });
+  }
+
+  // === SCRIPTURE DISPLAY ===
+  function updateScriptureDisplays() {
+    const ref = document.getElementById('scriptureRef').value.trim();
+    const text = document.getElementById('scriptureText').value.trim();
+    for (let i = 1; i <= 6; i++) {
+      const display = document.getElementById('scriptureDisplay' + i);
+      if (display) {
+        if (ref || text) {
+          display.style.display = 'block';
+          display.innerHTML =
+            (ref ? '<div class="scripture-display-ref">' + escapeHtml(ref) + '</div>' : '') +
+            (text ? '<div class="scripture-display-text">"' + escapeHtml(text) + '"</div>' : '');
+        } else {
+          display.style.display = 'none';
+        }
+      }
+    }
+  }
+
+  // === AUTO GROW TEXTAREAS ===
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  // Initialize auto-grow on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.prompt-textarea, .scripture-text-input').forEach(ta => {
+      ta.addEventListener('input', () => autoGrow(ta));
+    });
+  });
+
+  // === SUMMARY ===
+  const movements = [
+    {
+      title: 'Lectio — Reading',
+      fields: [
+        { id: 'lectio-characters', label: 'Characters' },
+        { id: 'lectio-circumstances', label: 'Circumstances' },
+        { id: 'lectio-teachings', label: 'Teachings' }
+      ]
+    },
+    {
+      title: 'Meditatio — Meditation',
+      fields: [
+        { id: 'meditatio-assimilation', label: 'Assimilation' },
+        { id: 'meditatio-association', label: 'Association' },
+        { id: 'meditatio-correlation', label: 'Correlation' }
+      ]
+    },
+    {
+      title: 'Oratio — Prayer',
+      fields: [
+        { id: 'oratio-petition', label: 'Petition' },
+        { id: 'oratio-intercession', label: 'Intercession' },
+        { id: 'oratio-thanksgiving', label: 'Thanksgiving' },
+        { id: 'oratio-praise', label: 'Praise' }
+      ]
+    },
+    {
+      title: 'Contemplatio — Contemplation',
+      fields: [
+        { id: 'contemplatio-contemplate', label: 'Contemplate' },
+        { id: 'contemplatio-comprehend', label: 'Comprehend' },
+        { id: 'contemplatio-taste', label: 'Taste' }
+      ]
+    },
+    {
+      title: 'Actio — Action',
+      fields: [
+        { id: 'actio-recognize', label: 'Recognize' },
+        { id: 'actio-plan', label: 'Plan' },
+        { id: 'actio-evaluate', label: 'Evaluate' }
+      ]
+    }
+  ];
+
+  function buildSummary() {
+    const container = document.getElementById('summaryContent');
+    let html = '';
+
+    movements.forEach(m => {
+      html += '<div class="summary-movement">';
+      html += '<div class="summary-movement-title">' + m.title + '</div>';
+      m.fields.forEach(f => {
+        const val = document.getElementById(f.id).value.trim();
+        html += '<div class="summary-field">';
+        html += '<div class="summary-field-label">' + f.label + '</div>';
+        html += '<div class="summary-field-text' + (val ? '' : ' empty') + '">' +
+                (val ? escapeHtml(val) : '(no entry)') + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+
+    container.innerHTML = html;
+  }
+
+  // === EXPORT PDF ===
+  function exportPDF() {
+    const ref = document.getElementById('scriptureRef').value.trim() || 'Scripture';
+    const text = document.getElementById('scriptureText').value.trim();
+
+    let pdfHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Inter', sans-serif; color: #1a1a1a; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+      .header { text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #c9a84c; }
+      .cross { font-family: 'Cormorant Garamond', serif; font-size: 14px; color: #8b6914; letter-spacing: 0.02em; margin-bottom: 2px; }
+      .cross a { color: #8b6914; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 0.05em; display: block; margin-top: 1px; opacity: 0.7; }
+      .pdf-footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e0d9c8; font-size: 10px; color: #999; }
+      h1 { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: #8b6914; margin-bottom: 4px; }
+      .subtitle { font-family: 'Cormorant Garamond', serif; font-size: 13px; color: #666; font-style: italic; }
+      .date { font-size: 11px; color: #888; margin-top: 8px; }
+      .scripture-box { background: #faf8f3; border: 1px solid #e0d9c8; border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 28px; }
+      .scripture-ref { font-size: 11px; font-weight: 600; color: #8b6914; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+      .scripture-text { font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic; color: #333; }
+      .movement { margin-bottom: 24px; page-break-inside: avoid; }
+      .movement-title { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 500; color: #8b6914; border-bottom: 1px solid #e0d9c8; padding-bottom: 6px; margin-bottom: 12px; }
+      .field { margin-bottom: 10px; }
+      .field-label { font-size: 10px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+      .field-text { font-size: 12px; color: #333; white-space: pre-wrap; line-height: 1.55; }
+      .field-text.empty { color: #aaa; font-style: italic; }
+    </style></head><body>`;
+
+    pdfHtml += `<div class="header"><div class="cross">The Call to Holiness<a href="https://thecalltoholiness.com">thecalltoholiness.com</a></div><h1>Lectio Divina</h1><p class="subtitle">Meditating with the Word of God</p><p class="date">${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p></div>`;
+
+    if (ref || text) {
+      pdfHtml += `<div class="scripture-box">`;
+      if (ref) pdfHtml += `<div class="scripture-ref">${escapeHtml(ref)}</div>`;
+      if (text) pdfHtml += `<div class="scripture-text">"${escapeHtml(text)}"</div>`;
+      pdfHtml += `</div>`;
+    }
+
+    movements.forEach(m => {
+      pdfHtml += `<div class="movement"><div class="movement-title">${m.title}</div>`;
+      m.fields.forEach(f => {
+        const val = document.getElementById(f.id).value.trim();
+        pdfHtml += `<div class="field"><div class="field-label">${f.label}</div>`;
+        pdfHtml += `<div class="field-text${val ? '' : ' empty'}">${val ? escapeHtml(val) : '(no entry)'}</div></div>`;
+      });
+      pdfHtml += `</div>`;
+    });
+
+    pdfHtml += `<div class="pdf-footer">&copy; 2026 Mission Surrender, LLC. All rights reserved.</div>`;
+    pdfHtml += `</body></html>`;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(pdfHtml);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+  }
+
+  // === PRINT VIEW ===
+  function printView() {
+    // Show summary screen for printing
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('print-target'));
+    document.getElementById('screen-6').classList.add('print-target');
+    buildSummary();
+    window.print();
+  }
+
+  // === RESTART ===
+  function confirmRestart() {
+    if (confirm('Start a new Lectio Divina? This will clear all your current entries.')) {
+      document.querySelectorAll('textarea').forEach(ta => { ta.value = ''; ta.style.height = 'auto'; });
+      document.getElementById('scriptureRef').value = '';
+      currentStep = 0;
+      showScreen(0);
+    }
+  }
+
+  // === UTILITIES ===
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // === KEYBOARD SUPPORT ===
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight') nextStep();
+    if (e.key === 'ArrowLeft') prevStep();
+  });
+
+  // === TOUCH SWIPE ===
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    const diff = touchStartX - touchEndX;
+    // Only swipe if not in a textarea and swipe is significant
+    if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+      if (Math.abs(diff) > 80) {
+        if (diff > 0) nextStep();
+        else prevStep();
+      }
+    }
+  }, { passive: true });
+
+  // Init
+  showScreen(0);
+</script>
+</body>
+</html>
