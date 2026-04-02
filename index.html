@@ -96,7 +96,31 @@ textarea:focus { border-color: var(--gold); background: #fff; }
 .summary-empty { font-size: 0.88rem; color: var(--text-dim); font-style: italic; margin-bottom: 12px; }
 
 /* Footer */
+/* Print / Save to PDF Button */
+.btn-print { width: 100%; margin-top: 12px; padding: 14px 18px; background: linear-gradient(135deg, var(--gold), var(--warm)); border: none; border-radius: 12px; color: #fff; font-size: 0.92rem; font-weight: 600; cursor: pointer; font-family: var(--sans); box-shadow: 0 2px 12px rgba(139,105,20,0.2); display: flex; align-items: center; justify-content: center; gap: 8px; }
+
 footer { text-align: center; padding: 36px 0 16px; font-size: 0.72rem; color: var(--text-dim); }
+
+/* Print Styles */
+@media print {
+  body { background: #fff !important; color: #000 !important; font-size: 11pt; }
+  .container { max-width: 100%; padding: 0; }
+  .progress, .progress-labels, .nav-row, .btn-next, .btn-back, .btn-reset, .btn-print, .btn-fetch, .lookup-row, .fetch-status, #step-0 textarea { display: none !important; }
+  .step { display: block !important; page-break-inside: avoid; }
+  #step-0 { display: block !important; }
+  #step-0 .prayer-block { display: block !important; }
+  #step-1, #step-2, #step-3, #step-4, #step-5 { display: none !important; }
+  #step-6 { display: block !important; }
+  #step-6 .card { box-shadow: none; border: 1px solid #ccc; }
+  .circle { border-color: #999; box-shadow: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .circle img { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .prayer-block, .quote-block, .scripture-box { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  header { padding: 12px 0; }
+  h1 { font-size: 1.5rem; }
+  footer { padding: 12px 0; }
+  .summary-title { color: #333 !important; }
+  .summary-text { color: #000 !important; }
+}
 
 /* Step visibility */
 .step { display: none; }
@@ -384,6 +408,7 @@ function buildReview() {
   });
   html += '</div>';
   html += '<div class="nav-row"><button class="btn-back" onclick="goTo(5)">\u2190 Back to Actio</button></div>';
+  html += '<button class="btn-print" onclick="printPDF()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Save / Print to PDF</button>';
   html += '<button class="btn-reset" onclick="resetAll()">Start New Lectio Divina</button>';
   el.innerHTML = html;
 }
@@ -441,6 +466,29 @@ document.addEventListener('touchend', e => {
     if (dx > 0 && currentStep > 0) goTo(currentStep - 1);
   }
 }, { passive: true });
+
+/* ── Print / Save to PDF ── */
+function printPDF() {
+  // Sync all textarea entries to review before printing
+  MOVEMENTS.forEach(mv => {
+    mv.fields.forEach(f => {
+      const el = document.getElementById(f.id);
+      if (el) entries[f.id] = el.value;
+      const rev = document.getElementById('review-' + f.id);
+      const val = entries[f.id] || '';
+      if (rev) {
+        rev.textContent = val || '(no entry)';
+        rev.className = val ? 'summary-text' : 'summary-empty';
+      }
+    });
+  });
+  // Update scripture displays
+  for (let i = 1; i <= 6; i++) {
+    const sd = document.getElementById('scripture-display-' + i);
+    if (sd) sd.innerHTML = scriptureHTML();
+  }
+  window.print();
+}
 
 /* ── Init ── */
 buildMovements();
