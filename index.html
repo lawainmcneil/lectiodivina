@@ -1,273 +1,451 @@
-import { useState, useEffect, useRef } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lectio Divina — The Call to Holiness</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-const CHRIST_IMG = "data:image/jpeg;base64,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";
-const DOMINIC_IMG = "data:image/jpeg;base64,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";
+:root {
+  --bg: #f5f0e8; --card: #ffffff; --input-bg: #faf7f2;
+  --border: #ddd5c8; --border-light: #e8e1d5;
+  --gold: #8b6914; --gold-soft: #a07a1a;
+  --gold-dim: rgba(139,105,20,0.1); --gold-glow: rgba(139,105,20,0.06);
+  --text: #1a1208; --text-muted: #4a3f32; --text-dim: #7a6f5f;
+  --warm: #7a5c10; --warm-bg: #faf6ee;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-const movements = [
-  {
-    title: "Lectio", subtitle: "Reading", number: "First Movement",
-    description: "Ask God to use your intellect in order to seek the objective meaning of the sacred text.",
-    quote: '"It opens with the reading (Lectio) of a text, which leads to a desire to understand its true content: what does the biblical text say in itself? Without this, there is always a risk that the text will become a pretext for never moving beyond our ideas."',
-    quoteSource: "Verbum Domini, §87",
-    fields: [
-      { id: "lectio-characters", label: "Characters", hint: "Who are the characters in the reading?", placeholder: "Reflect on who appears in this passage..." },
-      { id: "lectio-circumstances", label: "Circumstances", hint: "Events, When, How, Where, & Why?", placeholder: "What is happening and in what context..." },
-      { id: "lectio-teachings", label: "Teachings", hint: "What does the reading say?", placeholder: "What truths does this passage communicate..." }
-    ]
-  },
-  {
-    title: "Meditatio", subtitle: "Meditation", number: "Second Movement",
-    description: "Meditate on the Sacred Text. Using your heart, discover what the text is saying to you.",
-    quote: '"Next comes meditation (Meditatio), which asks: What does the biblical text say to us? Here, each person, individually but also as a member of the community, must let himself or herself be moved and challenged."',
-    quoteSource: "Verbum Domini, §87",
-    fields: [
-      { id: "meditatio-assimilation", label: "Assimilation", hint: "What is the text telling me?", placeholder: "What is God speaking to my heart..." },
-      { id: "meditatio-association", label: "Association", hint: "How does it affect my life?", placeholder: "How does this connect to my daily life..." },
-      { id: "meditatio-correlation", label: "Correlation", hint: "What does it remind me of?", placeholder: "What memories, experiences, or other Scriptures come to mind..." }
-    ]
-  },
-  {
-    title: "Oratio", subtitle: "Prayer", number: "Third Movement",
-    description: "Pray with the Sacred Text. We knock on the door of Christ by speaking to Him in prayer.",
-    quote: '"Following this, comes prayer (Oratio), which asks the question: what do we say to the Lord in response to His word? Prayer, as petition, intercession, thanksgiving, and praise, is the primary way by which the Word transforms us."',
-    quoteSource: "Verbum Domini, §87",
-    fields: [
-      { id: "oratio-petition", label: "Petition", hint: "What is the text asking me to do or change?", placeholder: "Lord, I hear you calling me to..." },
-      { id: "oratio-intercession", label: "Intercession", hint: "That God may give me the grace to do it.", placeholder: "Grant me the grace to..." },
-      { id: "oratio-thanksgiving", label: "Thanksgiving", hint: "Thank Him for the gift(s).", placeholder: "I thank you, Lord, for..." },
-      { id: "oratio-praise", label: "Praise", hint: "In God's providence to achieve the goal.", placeholder: "I praise you for your providence in..." }
-    ]
-  },
-  {
-    title: "Contemplatio", subtitle: "Contemplation", number: "Fourth Movement",
-    description: "Utilizing the passive act of contemplation — do nothing. Let God open to you and reveal to you whatsoever, however, and whenever.",
-    quote: '"Next comes contemplation (Contemplatio), during which we take up, as a gift from God, his own way of seeing and judging reality, and ask ourselves what conversion of mind, heart, and life is the Lord asking of us? [...] Contemplation aims at creating within us a truly wise and discerning vision of reality, as God sees it, and at forming within us the mind of Christ (1 Cor 2:16)."',
-    quoteSource: "Verbum Domini, §87",
-    fields: [
-      { id: "contemplatio-contemplate", label: "Contemplate", hint: "God's love through the message He has given me.", placeholder: "Rest in silence and receive what God reveals..." },
-      { id: "contemplatio-comprehend", label: "Comprehend", hint: "That I am part of His plan & that He loves me.", placeholder: "I understand now that..." },
-      { id: "contemplatio-taste", label: "Taste", hint: "I enjoy the beauty of His gifts & the healing power of mercy.", placeholder: "I savor the sweetness of..." }
-    ]
-  },
-  {
-    title: "Actio", subtitle: "Action", number: "Fifth Movement",
-    description: "What is the active resolution to make the Sacred Text come to life: Using the power of the will, cooperate with God by grace to act upon the Word.",
-    quote: '"The process of Lectio Divina is not concluded until it arrives at action (Actio), which moves the believer to make his or her life a gift for others in charity. We find the supreme synthesis and fulfillment of this process in the Mother of God. For every member of the faithful Mary is the model of docile acceptance of God\'s Word, for she kept all of these things, pondering them in her heart (Lk 2:19; 2:51)."',
-    quoteSource: "Verbum Domini, §87",
-    fields: [
-      { id: "actio-recognize", label: "Recognize", hint: "What is it that I am supposed to do?", placeholder: "I am called to..." },
-      { id: "actio-plan", label: "Plan", hint: "How am I to do it?", placeholder: "I will begin by..." },
-      { id: "actio-evaluate", label: "Evaluate", hint: "How am I progressing?", placeholder: "I will measure my growth by..." }
-    ]
-  }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; -webkit-text-size-adjust: 100%; }
+
+.container { max-width: 680px; margin: 0 auto; padding: 20px 16px 80px; }
+
+/* Header */
+header { text-align: center; padding: 24px 0 16px; }
+.brand { font-family: var(--serif); font-size: 1.1rem; color: var(--gold); margin-bottom: 2px; }
+.brand-link { color: var(--gold); text-decoration: none; font-size: 0.75rem; font-family: var(--sans); opacity: 0.6; display: block; margin-top: 2px; }
+.image-row { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 16px 0 12px; }
+.circle { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--gold); box-shadow: 0 0 16px rgba(139,105,20,0.12), 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; flex-shrink: 0; background: #fff; }
+.circle img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.title-block { text-align: center; flex-shrink: 1; min-width: 0; }
+h1 { font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--gold-soft); line-height: 1.2; margin-bottom: 4px; }
+.subtitle { font-family: var(--serif); font-size: 0.9rem; font-weight: 300; color: var(--text-muted); font-style: italic; }
+
+/* Progress */
+.progress { display: flex; gap: 6px; margin: 20px 0 8px; }
+.progress-dot { flex: 1; height: 3px; border-radius: 2px; background: var(--border); transition: background 0.3s; cursor: pointer; }
+.progress-dot.done { background: var(--gold); }
+.progress-dot.active { background: var(--gold-soft); }
+.progress-labels { display: flex; justify-content: space-between; margin-bottom: 24px; }
+.progress-label { font-family: var(--serif); font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; flex: 1; text-align: center; cursor: pointer; transition: color 0.3s; }
+.progress-label.highlight { color: var(--gold); }
+
+/* Cards & Blocks */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.prayer-block { background: var(--warm-bg); border-left: 3px solid var(--gold); border-radius: 0 12px 12px 0; padding: 18px 22px; margin-bottom: 24px; }
+.prayer-label { font-family: var(--serif); font-size: 0.8rem; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; }
+.prayer-text { font-family: var(--serif); font-size: 1rem; font-weight: 300; color: var(--text); line-height: 1.7; font-style: italic; }
+
+/* Section */
+.section-label { font-family: var(--serif); font-size: 0.8rem; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 10px; }
+
+/* Inputs */
+.lookup-row { display: flex; gap: 10px; margin-bottom: 8px; }
+input[type="text"] { flex: 1; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: var(--sans); font-size: 0.95rem; padding: 12px 14px; outline: none; width: 100%; }
+input[type="text"]:focus { border-color: var(--gold); background: #fff; }
+textarea { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.92rem; padding: 12px 14px; min-height: 100px; outline: none; resize: vertical; line-height: 1.6; font-family: var(--sans); box-sizing: border-box; }
+textarea:focus { border-color: var(--gold); background: #fff; }
+.scripture-textarea { font-family: var(--serif); font-size: 1rem; font-style: italic; padding: 14px 16px; min-height: 90px; line-height: 1.7; }
+
+/* Buttons */
+.btn-fetch { padding: 12px 18px; border: 1px solid var(--gold); background: var(--gold-dim); color: var(--gold); border-radius: 10px; font-size: 0.85rem; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: var(--sans); }
+.btn-fetch:disabled { opacity: 0.5; }
+.fetch-status { font-size: 0.75rem; color: var(--text-dim); font-style: italic; margin-bottom: 6px; min-height: 18px; }
+.nav-row { display: flex; gap: 12px; margin-top: 28px; }
+.btn-back { flex: 1; padding: 14px 18px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); font-size: 0.92rem; font-weight: 500; cursor: pointer; font-family: var(--sans); }
+.btn-next { flex: 1; padding: 14px 18px; background: linear-gradient(135deg, var(--gold), var(--warm)); border: none; border-radius: 12px; color: #fff; font-size: 0.92rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 12px rgba(139,105,20,0.2); font-family: var(--sans); }
+.btn-full { width: 100%; margin-top: 24px; padding: 16px; font-size: 1rem; }
+.btn-reset { width: 100%; margin-top: 12px; padding: 14px 18px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); font-size: 0.92rem; font-weight: 500; cursor: pointer; font-family: var(--sans); }
+
+/* Movement */
+.movement-header { text-align: center; margin-bottom: 24px; }
+.movement-number { font-size: 0.7rem; font-weight: 500; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 4px; }
+.movement-title { font-family: var(--serif); font-size: 1.7rem; font-weight: 400; color: var(--gold-soft); letter-spacing: 0.05em; margin-bottom: 2px; }
+.movement-sub { font-family: var(--serif); font-size: 0.85rem; font-weight: 300; color: var(--text-dim); font-style: italic; }
+.movement-desc { font-family: var(--serif); font-size: 0.95rem; font-weight: 300; color: var(--text-muted); line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+.quote-block { background: var(--warm-bg); border-left: 2px solid rgba(139,105,20,0.3); border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 24px; font-family: var(--serif); font-size: 0.88rem; font-weight: 300; color: var(--text-muted); line-height: 1.65; font-style: italic; }
+.quote-src { display: block; margin-top: 6px; font-style: normal; font-size: 0.78rem; color: var(--text-dim); }
+
+/* Prompt Fields */
+.prompt-group { margin-bottom: 18px; }
+.prompt-label { font-family: var(--serif); font-size: 0.9rem; font-weight: 500; color: var(--gold-soft); margin-bottom: 2px; }
+.prompt-hint { font-size: 0.78rem; color: var(--text-dim); margin-bottom: 8px; }
+
+/* Scripture Display */
+.scripture-box { background: var(--warm-bg); border: 1px solid rgba(139,105,20,0.15); border-radius: 12px; padding: 14px 18px; margin-bottom: 22px; text-align: center; }
+.scripture-ref-text { font-size: 0.72rem; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.scripture-body { font-family: var(--serif); font-size: 0.95rem; font-weight: 300; color: var(--text); font-style: italic; line-height: 1.6; }
+
+/* Review */
+.summary-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 500; color: var(--gold-soft); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.summary-label { font-size: 0.72rem; font-weight: 500; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+.summary-text { font-size: 0.88rem; color: var(--text); line-height: 1.6; white-space: pre-wrap; margin-bottom: 12px; }
+.summary-empty { font-size: 0.88rem; color: var(--text-dim); font-style: italic; margin-bottom: 12px; }
+
+/* Footer */
+footer { text-align: center; padding: 36px 0 16px; font-size: 0.72rem; color: var(--text-dim); }
+
+/* Step visibility */
+.step { display: none; }
+.step.active { display: block; }
+
+/* Responsive: iPhone SE */
+@media (max-width: 375px) {
+  .container { padding: 12px 10px 60px; }
+  h1 { font-size: 1.3rem; }
+  .circle { width: 60px; height: 60px; }
+  .image-row { gap: 12px; }
+  .movement-title { font-size: 1.3rem; }
+  .prayer-text, .movement-desc { font-size: 0.88rem; }
+  textarea { min-height: 80px; font-size: 0.85rem; }
+}
+
+/* Responsive: iPhone */
+@media (min-width: 376px) and (max-width: 480px) {
+  .container { padding: 14px 12px 70px; }
+  h1 { font-size: 1.5rem; }
+  .circle { width: 75px; height: 75px; }
+  .image-row { gap: 16px; }
+}
+
+/* Responsive: iPad Portrait */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container { max-width: 620px; padding: 24px 20px 90px; }
+  h1 { font-size: 2rem; }
+  .circle { width: 110px; height: 110px; }
+  textarea { min-height: 120px; }
+}
+
+/* Responsive: iPad Landscape */
+@media (min-width: 1025px) {
+  .container { max-width: 720px; padding: 30px 24px 100px; }
+  h1 { font-size: 2.2rem; }
+  .circle { width: 120px; height: 120px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <!-- Header -->
+  <header>
+    <div class="brand">The Call to Holiness</div>
+    <a href="https://thecalltoholiness.com" target="_blank" rel="noopener noreferrer" class="brand-link">thecalltoholiness.com</a>
+    <div class="image-row">
+      <div class="circle"><img src="data:image/jpeg;base64,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" alt="Christ Blessing"></div>
+      <div class="title-block">
+        <h1>Lectio Divina</h1>
+        <p class="subtitle">Meditating with the Word of God</p>
+      </div>
+      <div class="circle"><img src="data:image/jpeg;base64,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" alt="St. Dominic"></div>
+    </div>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="progress" id="progress-bar"></div>
+  <div class="progress-labels" id="progress-labels"></div>
+
+  <!-- Step 0: Begin -->
+  <div class="step active" id="step-0">
+    <div class="prayer-block">
+      <div class="prayer-label">Opening Prayer</div>
+      <p class="prayer-text">Come Holy Spirit, fill the hearts of your faithful and kindle in them the fire of your love. Send forth your Spirit and they shall be created. And You shall renew the face of the earth.</p>
+      <br>
+      <p class="prayer-text">O, God, who by the light of the Holy Spirit, did instruct the hearts of the faithful, grant that by the same Holy Spirit we may be truly wise and ever enjoy His consolations, Through Christ Our Lord, Amen.</p>
+    </div>
+    <div style="margin-top:20px">
+      <div class="section-label">Scripture Passage</div>
+      <div class="lookup-row">
+        <input type="text" id="scripture-ref" placeholder="e.g. Luke 11:9 or Romans 8:28-30">
+        <button class="btn-fetch" id="fetch-btn" onclick="fetchVerse()">Fetch Verse</button>
+      </div>
+      <div class="fetch-status" id="fetch-status"></div>
+      <textarea id="scripture-text" class="scripture-textarea" placeholder="Enter Scripture text here, or type a reference above and tap Fetch Verse\u2026"></textarea>
+    </div>
+    <button class="btn-next btn-full" onclick="goTo(1)">Begin Lectio Divina</button>
+  </div>
+
+  <!-- Steps 1-5: Movements (generated by JS) -->
+  <div class="step" id="step-1"></div>
+  <div class="step" id="step-2"></div>
+  <div class="step" id="step-3"></div>
+  <div class="step" id="step-4"></div>
+  <div class="step" id="step-5"></div>
+
+  <!-- Step 6: Review -->
+  <div class="step" id="step-6"></div>
+
+  <footer>&copy; 2026 Mission Surrender, LLC. All rights reserved.</footer>
+</div>
+
+<script>
+/* ── Data ── */
+const STEP_LABELS = ["Begin","Lectio","Meditatio","Oratio","Contemplatio","Actio","Review"];
+
+const MOVEMENTS = [
+  { title:"Lectio", subtitle:"Reading", number:"First Movement",
+    description:"Ask God to use your intellect in order to seek the objective meaning of the sacred text.",
+    quote:"\u201cIt opens with the reading (Lectio) of a text, which leads to a desire to understand its true content: what does the biblical text say in itself? Without this, there is always a risk that the text will become a pretext for never moving beyond our ideas.\u201d",
+    source:"Verbum Domini, \u00a787",
+    fields:[
+      {id:"lectio-characters",label:"Characters",hint:"Who are the characters in the reading?",placeholder:"Reflect on who appears in this passage\u2026"},
+      {id:"lectio-circumstances",label:"Circumstances",hint:"Events, When, How, Where, & Why?",placeholder:"What is happening and in what context\u2026"},
+      {id:"lectio-teachings",label:"Teachings",hint:"What does the reading say?",placeholder:"What truths does this passage communicate\u2026"}
+    ]},
+  { title:"Meditatio", subtitle:"Meditation", number:"Second Movement",
+    description:"Meditate on the Sacred Text. Using your heart, discover what the text is saying to you.",
+    quote:"\u201cNext comes meditation (Meditatio), which asks: What does the biblical text say to us? Here, each person, individually but also as a member of the community, must let himself or herself be moved and challenged.\u201d",
+    source:"Verbum Domini, \u00a787",
+    fields:[
+      {id:"meditatio-assimilation",label:"Assimilation",hint:"What is the text telling me?",placeholder:"What is God speaking to my heart\u2026"},
+      {id:"meditatio-association",label:"Association",hint:"How does it affect my life?",placeholder:"How does this connect to my daily life\u2026"},
+      {id:"meditatio-correlation",label:"Correlation",hint:"What does it remind me of?",placeholder:"What memories, experiences, or other Scriptures come to mind\u2026"}
+    ]},
+  { title:"Oratio", subtitle:"Prayer", number:"Third Movement",
+    description:"Pray with the Sacred Text. We knock on the door of Christ by speaking to Him in prayer.",
+    quote:"\u201cFollowing this, comes prayer (Oratio), which asks the question: what do we say to the Lord in response to His word? Prayer, as petition, intercession, thanksgiving, and praise, is the primary way by which the Word transforms us.\u201d",
+    source:"Verbum Domini, \u00a787",
+    fields:[
+      {id:"oratio-petition",label:"Petition",hint:"What is the text asking me to do or change?",placeholder:"Lord, I hear you calling me to\u2026"},
+      {id:"oratio-intercession",label:"Intercession",hint:"That God may give me the grace to do it.",placeholder:"Grant me the grace to\u2026"},
+      {id:"oratio-thanksgiving",label:"Thanksgiving",hint:"Thank Him for the gift(s).",placeholder:"I thank you, Lord, for\u2026"},
+      {id:"oratio-praise",label:"Praise",hint:"In God\u2019s providence to achieve the goal.",placeholder:"I praise you for your providence in\u2026"}
+    ]},
+  { title:"Contemplatio", subtitle:"Contemplation", number:"Fourth Movement",
+    description:"Utilizing the passive act of contemplation \u2014 do nothing. Let God open to you and reveal to you whatsoever, however, and whenever.",
+    quote:"\u201cNext comes contemplation (Contemplatio), during which we take up, as a gift from God, his own way of seeing and judging reality, and ask ourselves what conversion of mind, heart, and life is the Lord asking of us? [\u2026] Contemplation aims at creating within us a truly wise and discerning vision of reality, as God sees it, and at forming within us the mind of Christ (1 Cor 2:16).\u201d",
+    source:"Verbum Domini, \u00a787",
+    fields:[
+      {id:"contemplatio-contemplate",label:"Contemplate",hint:"God\u2019s love through the message He has given me.",placeholder:"Rest in silence and receive what God reveals\u2026"},
+      {id:"contemplatio-comprehend",label:"Comprehend",hint:"That I am part of His plan & that He loves me.",placeholder:"I understand now that\u2026"},
+      {id:"contemplatio-taste",label:"Taste",hint:"I enjoy the beauty of His gifts & the healing power of mercy.",placeholder:"I savor the sweetness of\u2026"}
+    ]},
+  { title:"Actio", subtitle:"Action", number:"Fifth Movement",
+    description:"What is the active resolution to make the Sacred Text come to life: Using the power of the will, cooperate with God by grace to act upon the Word.",
+    quote:"\u201cThe process of Lectio Divina is not concluded until it arrives at action (Actio), which moves the believer to make his or her life a gift for others in charity. We find the supreme synthesis and fulfillment of this process in the Mother of God. For every member of the faithful Mary is the model of docile acceptance of God\u2019s Word, for she kept all of these things, pondering them in her heart (Lk 2:19; 2:51).\u201d",
+    source:"Verbum Domini, \u00a787",
+    fields:[
+      {id:"actio-recognize",label:"Recognize",hint:"What is it that I am supposed to do?",placeholder:"I am called to\u2026"},
+      {id:"actio-plan",label:"Plan",hint:"How am I to do it?",placeholder:"I will begin by\u2026"},
+      {id:"actio-evaluate",label:"Evaluate",hint:"How am I progressing?",placeholder:"I will measure my growth by\u2026"}
+    ]}
 ];
 
-const stepLabels = ["Begin", "Lectio", "Meditatio", "Oratio", "Contemplatio", "Actio", "Review"];
+const BOOK_MAP = {genesis:"GEN",gen:"GEN",exodus:"EXO",ex:"EXO",leviticus:"LEV",lev:"LEV",numbers:"NUM",num:"NUM",deuteronomy:"DEU",deut:"DEU",joshua:"JOS",josh:"JOS",judges:"JDG",judg:"JDG",ruth:"RUT",ru:"RUT","1 samuel":"1SA","1samuel":"1SA","1 sam":"1SA","1sam":"1SA","2 samuel":"2SA","2samuel":"2SA","2 sam":"2SA","2sam":"2SA","1 kings":"1KI","1kings":"1KI","1 kgs":"1KI","2 kings":"2KI","2kings":"2KI","2 kgs":"2KI","1 chronicles":"1CH","1chr":"1CH","2 chronicles":"2CH","2chr":"2CH",ezra:"EZR",nehemiah:"NEH",neh:"NEH",tobit:"TOB",judith:"JDT",esther:"EST",job:"JOB",psalms:"PSA",psalm:"PSA",ps:"PSA",proverbs:"PRO",prov:"PRO",ecclesiastes:"ECC",eccl:"ECC","song of solomon":"SNG",wisdom:"WIS",wis:"WIS",sirach:"SIR",sir:"SIR",isaiah:"ISA",isa:"ISA",jeremiah:"JER",jer:"JER",lamentations:"LAM",lam:"LAM",baruch:"BAR",ezekiel:"EZK",ezek:"EZK",daniel:"DAN",dan:"DAN",hosea:"HOS",hos:"HOS",joel:"JOL",amos:"AMO",obadiah:"OBA",jonah:"JON",micah:"MIC",mic:"MIC",nahum:"NAH",habakkuk:"HAB",zephaniah:"ZEP",haggai:"HAG",hag:"HAG",zechariah:"ZEC",zech:"ZEC",malachi:"MAL",mal:"MAL",matthew:"MAT",matt:"MAT",mt:"MAT",mark:"MRK",mk:"MRK",luke:"LUK",lk:"LUK",john:"JHN",jn:"JHN",acts:"ACT",romans:"ROM",rom:"ROM","1 corinthians":"1CO","1 cor":"1CO","1cor":"1CO","2 corinthians":"2CO","2 cor":"2CO","2cor":"2CO",galatians:"GAL",gal:"GAL",ephesians:"EPH",eph:"EPH",philippians:"PHP",phil:"PHP",colossians:"COL",col:"COL","1 thessalonians":"1TH","1 thess":"1TH","2 thessalonians":"2TH","2 thess":"2TH","1 timothy":"1TI","1 tim":"1TI","2 timothy":"2TI","2 tim":"2TI",titus:"TIT",philemon:"PHM",hebrews:"HEB",heb:"HEB",james:"JAS",jas:"JAS","1 peter":"1PE","1 pet":"1PE","2 peter":"2PE","2 pet":"2PE","1 john":"1JN","1 jn":"1JN","2 john":"2JN","3 john":"3JN",jude:"JUD",revelation:"REV",rev:"REV"};
 
-export default function LectioDivina() {
-  const [step, setStep] = useState(0);
-  const [scriptureRef, setScriptureRef] = useState("");
-  const [scriptureText, setScriptureText] = useState("");
-  const [entries, setEntries] = useState({});
-  const [fetchStatus, setFetchStatus] = useState("");
-  const [fetching, setFetching] = useState(false);
-  const topRef = useRef(null);
+/* ── State ── */
+let currentStep = 0;
+const entries = {};
 
-  useEffect(() => { topRef.current?.scrollIntoView({ behavior: "smooth" }); }, [step]);
-
-  const updateEntry = (id, val) => setEntries(prev => ({ ...prev, [id]: val }));
-
-  const fetchVerse = async () => {
-    if (!scriptureRef.trim()) { setFetchStatus("Please enter a Scripture reference."); return; }
-    setFetching(true);
-    setFetchStatus("Looking up " + scriptureRef + " (RSV)...");
-    try {
-      const bookMap = {genesis:"GEN",gen:"GEN",exodus:"EXO",ex:"EXO",leviticus:"LEV",lev:"LEV",numbers:"NUM",num:"NUM",deuteronomy:"DEU",deut:"DEU",joshua:"JOS",josh:"JOS",judges:"JDG",judg:"JDG",ruth:"RUT",ru:"RUT","1 samuel":"1SA","1samuel":"1SA","1 sam":"1SA","1sam":"1SA","2 samuel":"2SA","2samuel":"2SA","2 sam":"2SA","2sam":"2SA","1 kings":"1KI","1kings":"1KI","1 kgs":"1KI","2 kings":"2KI","2kings":"2KI","2 kgs":"2KI","1 chronicles":"1CH","1chr":"1CH","2 chronicles":"2CH","2chr":"2CH",ezra:"EZR",nehemiah:"NEH",neh:"NEH",tobit:"TOB",judith:"JDT",esther:"EST",job:"JOB",psalms:"PSA",psalm:"PSA",ps:"PSA",proverbs:"PRO",prov:"PRO",ecclesiastes:"ECC",eccl:"ECC","song of solomon":"SNG",wisdom:"WIS",wis:"WIS",sirach:"SIR",sir:"SIR",isaiah:"ISA",isa:"ISA",jeremiah:"JER",jer:"JER",lamentations:"LAM",lam:"LAM",baruch:"BAR",ezekiel:"EZK",ezek:"EZK",daniel:"DAN",dan:"DAN",hosea:"HOS",hos:"HOS",joel:"JOL",amos:"AMO",obadiah:"OBA",jonah:"JON",micah:"MIC",mic:"MIC",nahum:"NAH",habakkuk:"HAB",zephaniah:"ZEP",haggai:"HAG",hag:"HAG",zechariah:"ZEC",zech:"ZEC",malachi:"MAL",mal:"MAL",matthew:"MAT",matt:"MAT",mt:"MAT",mark:"MRK",mk:"MRK",luke:"LUK",lk:"LUK",john:"JHN",jn:"JHN",acts:"ACT",romans:"ROM",rom:"ROM","1 corinthians":"1CO","1 cor":"1CO","1cor":"1CO","2 corinthians":"2CO","2 cor":"2CO","2cor":"2CO",galatians:"GAL",gal:"GAL",ephesians:"EPH",eph:"EPH",philippians:"PHP",phil:"PHP",colossians:"COL",col:"COL","1 thessalonians":"1TH","1 thess":"1TH","2 thessalonians":"2TH","2 thess":"2TH","1 timothy":"1TI","1 tim":"1TI","2 timothy":"2TI","2 tim":"2TI",titus:"TIT",philemon:"PHM",hebrews:"HEB",heb:"HEB",james:"JAS",jas:"JAS","1 peter":"1PE","1 pet":"1PE","2 peter":"2PE","2 pet":"2PE","1 john":"1JN","1 jn":"1JN","2 john":"2JN","3 john":"3JN",jude:"JUD",revelation:"REV",rev:"REV"};
-      const m = scriptureRef.trim().match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)(?::(\d+)(?:\s*[-–]\s*(\d+))?)?$/);
-      if (!m) throw new Error("parse");
-      const code = bookMap[m[1].trim().toLowerCase()];
-      if (!code) throw new Error("book");
-      const ch = parseInt(m[2]), vs = m[3]?parseInt(m[3]):null, ve = m[4]?parseInt(m[4]):null;
-      const res = await fetch("https://bolls.life/get-chapter/RSV/"+code+"/"+ch+"/");
-      if (!res.ok) throw new Error("fetch");
-      const data = await res.json();
-      let text = "";
-      if (vs) {
-        const end = ve || vs;
-        text = data.filter(v=>v.verse>=vs&&v.verse<=end).map(v=>v.text.replace(/<[^>]*>/g,"").trim()).join(" ");
-      } else {
-        text = data.slice(0,5).map(v=>v.text.replace(/<[^>]*>/g,"").trim()).join(" ");
-        if (data.length>5) text += " ...";
-      }
-      if (!text) throw new Error("empty");
-      setScriptureText(text);
-      setFetchStatus("Fetched from RSV. You may edit the text.");
-    } catch(e) {
-      setFetchStatus("Could not fetch. Try format: John 3:16 or Romans 8:28-30");
-    }
-    setFetching(false);
-  };
-
-  const styles = {
-    app: { fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", background: "#f5f0e8", minHeight: "100vh", color: "#1a1208", lineHeight: 1.6 },
-    container: { maxWidth: 680, margin: "0 auto", padding: "20px 16px 80px" },
-    header: { textAlign: "center", padding: "24px 0 16px" },
-    brand: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.1rem", color: "#8b6914", marginBottom: 2 },
-    brandLink: { color: "#8b6914", textDecoration: "none", fontSize: "0.75rem", fontFamily: "'Inter', sans-serif", opacity: 0.6, display: "block", marginTop: 2 },
-    headerImages: { display: "flex", alignItems: "center", justifyContent: "center", gap: 24, margin: "16px 0 12px" },
-    circleFrame: { width: 100, height: 100, borderRadius: "50%", border: "2px solid #8b6914", boxShadow: "0 0 16px rgba(139,105,20,0.12), 0 2px 8px rgba(0,0,0,0.08)", overflow: "hidden", flexShrink: 0, background: "#fff" },
-    circleImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
-    title: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.8rem", fontWeight: 300, color: "#a07a1a", lineHeight: 1.2, marginBottom: 4 },
-    subtitle: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.9rem", fontWeight: 300, color: "#4a3f32", fontStyle: "italic" },
-    progress: { display: "flex", gap: 6, margin: "20px 0 8px" },
-    progressStep: (i) => ({ flex: 1, height: 3, borderRadius: 2, background: i < step ? "#8b6914" : i === step ? "#a07a1a" : "#ddd5c8", transition: "background 0.3s", cursor: "pointer" }),
-    progressLabels: { display: "flex", justifyContent: "space-between", marginBottom: 24 },
-    progressLabel: (i) => ({ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.6rem", color: i <= step ? "#8b6914" : "#7a6f5f", textTransform: "uppercase", letterSpacing: "0.1em", flex: 1, textAlign: "center", cursor: "pointer" }),
-    card: { background: "#fff", border: "1px solid #ddd5c8", borderRadius: 16, padding: "24px 20px", marginBottom: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" },
-    prayerBlock: { background: "#faf6ee", borderLeft: "3px solid #8b6914", borderRadius: "0 12px 12px 0", padding: "18px 22px", marginBottom: 24 },
-    prayerLabel: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.8rem", fontWeight: 600, color: "#8b6914", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 },
-    prayerText: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1rem", fontWeight: 300, color: "#1a1208", lineHeight: 1.7, fontStyle: "italic" },
-    sectionLabel: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.8rem", fontWeight: 600, color: "#8b6914", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 },
-    lookupRow: { display: "flex", gap: 10, marginBottom: 8 },
-    input: { flex: 1, background: "#faf7f2", border: "1px solid #ddd5c8", borderRadius: 10, color: "#1a1208", fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", padding: "12px 14px", outline: "none", width: "100%" },
-    textarea: { width: "100%", background: "#faf7f2", border: "1px solid #ddd5c8", borderRadius: 10, color: "#1a1208", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1rem", fontStyle: "italic", padding: "14px 16px", minHeight: 90, outline: "none", resize: "vertical", lineHeight: 1.7 },
-    fetchBtn: { padding: "12px 18px", border: "1px solid #8b6914", background: "rgba(139,105,20,0.1)", color: "#8b6914", borderRadius: 10, fontSize: "0.85rem", fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" },
-    fetchStatus: { fontSize: "0.75rem", color: "#7a6f5f", fontStyle: "italic", marginBottom: 6, minHeight: 18 },
-    movementHeader: { textAlign: "center", marginBottom: 24 },
-    movementNumber: { fontSize: "0.7rem", fontWeight: 500, color: "#7a6f5f", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 4 },
-    movementTitle: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.7rem", fontWeight: 400, color: "#a07a1a", letterSpacing: "0.05em", marginBottom: 2 },
-    movementLatin: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.85rem", fontWeight: 300, color: "#7a6f5f", fontStyle: "italic" },
-    movementDesc: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.95rem", fontWeight: 300, color: "#4a3f32", lineHeight: 1.7, fontStyle: "italic", marginBottom: 20 },
-    quote: { background: "#faf6ee", borderLeft: "2px solid rgba(139,105,20,0.3)", borderRadius: "0 10px 10px 0", padding: "14px 18px", marginBottom: 24, fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.88rem", fontWeight: 300, color: "#4a3f32", lineHeight: 1.65, fontStyle: "italic" },
-    quoteSrc: { display: "block", marginTop: 6, fontStyle: "normal", fontSize: "0.78rem", color: "#7a6f5f" },
-    promptLabel: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.9rem", fontWeight: 500, color: "#a07a1a", marginBottom: 2 },
-    promptHint: { fontSize: "0.78rem", color: "#7a6f5f", marginBottom: 8 },
-    promptTextarea: { width: "100%", background: "#faf7f2", border: "1px solid #ddd5c8", borderRadius: 10, color: "#1a1208", fontSize: "0.92rem", padding: "12px 14px", minHeight: 100, outline: "none", resize: "vertical", lineHeight: 1.6, fontFamily: "'Inter', sans-serif" },
-    navButtons: { display: "flex", gap: 12, marginTop: 28 },
-    btnBack: { flex: 1, padding: "14px 18px", background: "#faf7f2", border: "1px solid #ddd5c8", borderRadius: 12, color: "#4a3f32", fontSize: "0.92rem", fontWeight: 500, cursor: "pointer" },
-    btnNext: { flex: 1, padding: "14px 18px", background: "linear-gradient(135deg, #8b6914, #7a5c10)", border: "none", borderRadius: 12, color: "#fff", fontSize: "0.92rem", fontWeight: 600, cursor: "pointer", boxShadow: "0 2px 12px rgba(139,105,20,0.2)" },
-    scriptureBox: { background: "#faf6ee", border: "1px solid rgba(139,105,20,0.15)", borderRadius: 12, padding: "14px 18px", marginBottom: 22, textAlign: "center" },
-    scriptureRef: { fontSize: "0.72rem", fontWeight: 500, color: "#8b6914", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 },
-    scriptureTextDisp: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.95rem", fontWeight: 300, color: "#1a1208", fontStyle: "italic", lineHeight: 1.6 },
-    summaryTitle: { fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.15rem", fontWeight: 500, color: "#a07a1a", marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid #ddd5c8" },
-    summaryLabel: { fontSize: "0.72rem", fontWeight: 500, color: "#7a6f5f", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 },
-    summaryText: { fontSize: "0.88rem", color: "#1a1208", lineHeight: 1.6, whiteSpace: "pre-wrap", marginBottom: 12 },
-    summaryEmpty: { fontSize: "0.88rem", color: "#7a6f5f", fontStyle: "italic", marginBottom: 12 },
-    footer: { textAlign: "center", padding: "36px 0 16px", fontSize: "0.72rem", color: "#7a6f5f" }
-  };
-
-  const ScriptureDisplay = () => (scriptureRef || scriptureText) ? (
-    <div style={styles.scriptureBox}>
-      {scriptureRef && <div style={styles.scriptureRef}>{scriptureRef}</div>}
-      {scriptureText && <div style={styles.scriptureTextDisp}>"{scriptureText}"</div>}
-    </div>
-  ) : null;
-
-  const renderBegin = () => (
-    <div>
-      <div style={styles.prayerBlock}>
-        <div style={styles.prayerLabel}>Opening Prayer</div>
-        <p style={styles.prayerText}>Come Holy Spirit, fill the hearts of your faithful and kindle in them the fire of your love. Send forth your Spirit and they shall be created. And You shall renew the face of the earth.</p>
-        <br/>
-        <p style={styles.prayerText}>O, God, who by the light of the Holy Spirit, did instruct the hearts of the faithful, grant that by the same Holy Spirit we may be truly wise and ever enjoy His consolations, Through Christ Our Lord, Amen.</p>
-      </div>
-      <div style={{marginTop: 20}}>
-        <div style={styles.sectionLabel}>Scripture Passage</div>
-        <div style={styles.lookupRow}>
-          <input style={styles.input} value={scriptureRef} onChange={e=>setScriptureRef(e.target.value)} placeholder="e.g. Luke 11:9 or Romans 8:28-30" onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();fetchVerse();}}} />
-          <button style={{...styles.fetchBtn, opacity: fetching ? 0.5 : 1}} onClick={fetchVerse} disabled={fetching}>{fetching ? "Fetching..." : "Fetch Verse"}</button>
-        </div>
-        <div style={styles.fetchStatus}>{fetchStatus}</div>
-        <textarea style={styles.textarea} value={scriptureText} onChange={e=>setScriptureText(e.target.value)} placeholder="Enter Scripture text here, or type a reference above and tap Fetch Verse..." />
-      </div>
-      <button style={{...styles.btnNext, width: "100%", marginTop: 24, padding: "16px", fontSize: "1rem"}} onClick={()=>setStep(1)}>Begin Lectio Divina</button>
-    </div>
-  );
-
-  const renderMovement = (idx) => {
-    const m = movements[idx];
-    return (
-      <div>
-        <div style={styles.movementHeader}>
-          <div style={styles.movementNumber}>{m.number}</div>
-          <h2 style={styles.movementTitle}>{m.title}</h2>
-          <div style={styles.movementLatin}>{m.subtitle}</div>
-        </div>
-        <ScriptureDisplay />
-        <p style={styles.movementDesc}>{m.description}</p>
-        <div style={styles.quote}>{m.quote}<span style={styles.quoteSrc}>— {m.quoteSource}</span></div>
-        {m.fields.map(f => (
-          <div key={f.id} style={{marginBottom: 18}}>
-            <div style={styles.promptLabel}>{f.label}</div>
-            <div style={styles.promptHint}>{f.hint}</div>
-            <textarea style={styles.promptTextarea} value={entries[f.id]||""} onChange={e=>updateEntry(f.id,e.target.value)} placeholder={f.placeholder} />
-          </div>
-        ))}
-        <div style={styles.navButtons}>
-          <button style={styles.btnBack} onClick={()=>setStep(step-1)}>{step === 1 ? "Back" : "← " + stepLabels[step-1]}</button>
-          <button style={styles.btnNext} onClick={()=>setStep(step+1)}>{step < 5 ? stepLabels[step+1] + " →" : "Review & Finish →"}</button>
-        </div>
-      </div>
-    );
-  };
-
-  const renderReview = () => (
-    <div>
-      <div style={styles.movementHeader}>
-        <div style={styles.movementNumber}>Complete</div>
-        <h2 style={styles.movementTitle}>Review</h2>
-        <div style={styles.movementLatin}>Your Lectio Divina</div>
-      </div>
-      <ScriptureDisplay />
-      <div style={styles.card}>
-        {movements.map(m => (
-          <div key={m.title} style={{marginBottom: 24}}>
-            <div style={styles.summaryTitle}>{m.title} — {m.subtitle}</div>
-            {m.fields.map(f => (
-              <div key={f.id}>
-                <div style={styles.summaryLabel}>{f.label}</div>
-                <div style={entries[f.id] ? styles.summaryText : styles.summaryEmpty}>{entries[f.id] || "(no entry)"}</div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-      <div style={styles.navButtons}>
-        <button style={styles.btnBack} onClick={()=>setStep(5)}>← Back to Actio</button>
-      </div>
-      <button style={{...styles.btnBack, width:"100%", marginTop:12, border:"1px solid #ddd5c8"}} onClick={()=>{if(confirm("Start new? This clears all entries.")){setStep(0);setEntries({});setScriptureRef("");setScriptureText("");}}} >Start New Lectio Divina</button>
-    </div>
-  );
-
-  return (
-    <div style={styles.app}>
-      <div style={styles.container} ref={topRef}>
-        <header style={styles.header}>
-          <div style={styles.brand}>The Call to Holiness</div>
-          <a href="https://thecalltoholiness.com" target="_blank" style={styles.brandLink}>thecalltoholiness.com</a>
-          <div style={styles.headerImages}>
-            <div style={styles.circleFrame}><img src={CHRIST_IMG} alt="Christ Blessing" style={styles.circleImg} /></div>
-            <div style={{textAlign:"center", flexShrink:1, minWidth:0}}>
-              <h1 style={styles.title}>Lectio Divina</h1>
-              <p style={styles.subtitle}>Meditating with the Word of God</p>
-            </div>
-            <div style={styles.circleFrame}><img src={DOMINIC_IMG} alt="St. Dominic" style={styles.circleImg} /></div>
-          </div>
-        </header>
-
-        <div style={styles.progress}>
-          {stepLabels.map((_, i) => <div key={i} style={styles.progressStep(i)} onClick={()=>setStep(i)} />)}
-        </div>
-        <div style={styles.progressLabels}>
-          {stepLabels.map((l, i) => <span key={i} style={styles.progressLabel(i)} onClick={()=>setStep(i)}>{l}</span>)}
-        </div>
-
-        {step === 0 && renderBegin()}
-        {step >= 1 && step <= 5 && renderMovement(step - 1)}
-        {step === 6 && renderReview()}
-
-        <footer style={styles.footer}>© 2026 Mission Surrender, LLC. All rights reserved.</footer>
-      </div>
-    </div>
-  );
+/* ── Navigation ── */
+function goTo(s) {
+  document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+  document.getElementById('step-' + s).classList.add('active');
+  currentStep = s;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function updateProgress() {
+  const bar = document.getElementById('progress-bar');
+  const labels = document.getElementById('progress-labels');
+  bar.innerHTML = '';
+  labels.innerHTML = '';
+  STEP_LABELS.forEach((l, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i < currentStep ? ' done' : '') + (i === currentStep ? ' active' : '');
+    dot.onclick = () => goTo(i);
+    bar.appendChild(dot);
+
+    const lbl = document.createElement('span');
+    lbl.className = 'progress-label' + (i <= currentStep ? ' highlight' : '');
+    lbl.textContent = l;
+    lbl.onclick = () => goTo(i);
+    labels.appendChild(lbl);
+  });
+}
+
+/* ── Scripture Fetch ── */
+async function fetchVerse() {
+  const refInput = document.getElementById('scripture-ref');
+  const textArea = document.getElementById('scripture-text');
+  const status = document.getElementById('fetch-status');
+  const btn = document.getElementById('fetch-btn');
+  const ref = refInput.value.trim();
+  if (!ref) { status.textContent = 'Please enter a Scripture reference.'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Fetching\u2026';
+  status.textContent = 'Looking up ' + ref + ' (RSV)\u2026';
+  try {
+    const m = ref.match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)(?::(\d+)(?:\s*[-\u2013]\s*(\d+))?)?$/);
+    if (!m) throw new Error('parse');
+    const code = BOOK_MAP[m[1].trim().toLowerCase()];
+    if (!code) throw new Error('book');
+    const ch = parseInt(m[2]), vs = m[3] ? parseInt(m[3]) : null, ve = m[4] ? parseInt(m[4]) : null;
+    const res = await fetch('https://bolls.life/get-chapter/RSV/' + code + '/' + ch + '/');
+    if (!res.ok) throw new Error('fetch');
+    const data = await res.json();
+    let text = '';
+    if (vs) {
+      const end = ve || vs;
+      text = data.filter(v => v.verse >= vs && v.verse <= end).map(v => v.text.replace(/<[^>]*>/g, '').trim()).join(' ');
+    } else {
+      text = data.slice(0, 5).map(v => v.text.replace(/<[^>]*>/g, '').trim()).join(' ');
+      if (data.length > 5) text += ' \u2026';
+    }
+    if (!text) throw new Error('empty');
+    textArea.value = text;
+    status.textContent = 'Fetched from RSV. You may edit the text.';
+  } catch(e) {
+    status.textContent = 'Could not fetch. Try format: John 3:16 or Romans 8:28-30';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Fetch Verse';
+}
+
+/* ── Enter key triggers fetch ── */
+document.getElementById('scripture-ref').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); fetchVerse(); }
+});
+
+/* ── Scripture Display Helper ── */
+function scriptureHTML() {
+  const ref = document.getElementById('scripture-ref').value.trim();
+  const text = document.getElementById('scripture-text').value.trim();
+  if (!ref && !text) return '';
+  let html = '<div class="scripture-box">';
+  if (ref) html += '<div class="scripture-ref-text">' + escHtml(ref) + '</div>';
+  if (text) html += '<div class="scripture-body">\u201c' + escHtml(text) + '\u201d</div>';
+  html += '</div>';
+  return html;
+}
+
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* ── Build Movement Steps ── */
+function buildMovements() {
+  MOVEMENTS.forEach((mv, idx) => {
+    const stepIdx = idx + 1;
+    const el = document.getElementById('step-' + stepIdx);
+    let html = '<div class="movement-header">';
+    html += '<div class="movement-number">' + mv.number + '</div>';
+    html += '<h2 class="movement-title">' + mv.title + '</h2>';
+    html += '<div class="movement-sub">' + mv.subtitle + '</div></div>';
+    html += '<div id="scripture-display-' + stepIdx + '"></div>';
+    html += '<p class="movement-desc">' + mv.description + '</p>';
+    html += '<div class="quote-block">' + mv.quote + '<span class="quote-src">\u2014 ' + mv.source + '</span></div>';
+    mv.fields.forEach(f => {
+      html += '<div class="prompt-group">';
+      html += '<div class="prompt-label">' + f.label + '</div>';
+      html += '<div class="prompt-hint">' + f.hint + '</div>';
+      html += '<textarea id="' + f.id + '" placeholder="' + f.placeholder + '" oninput="entries[\'' + f.id + '\']=this.value"></textarea>';
+      html += '</div>';
+    });
+    html += '<div class="nav-row">';
+    const backLabel = stepIdx === 1 ? 'Back' : '\u2190 ' + STEP_LABELS[stepIdx - 1];
+    const nextLabel = stepIdx < 5 ? STEP_LABELS[stepIdx + 1] + ' \u2192' : 'Review & Finish \u2192';
+    html += '<button class="btn-back" onclick="goTo(' + (stepIdx - 1) + ')">' + backLabel + '</button>';
+    html += '<button class="btn-next" onclick="goTo(' + (stepIdx + 1) + ')">' + nextLabel + '</button>';
+    html += '</div>';
+    el.innerHTML = html;
+  });
+}
+
+/* ── Build Review ── */
+function buildReview() {
+  const el = document.getElementById('step-6');
+  let html = '<div class="movement-header">';
+  html += '<div class="movement-number">Complete</div>';
+  html += '<h2 class="movement-title">Review</h2>';
+  html += '<div class="movement-sub">Your Lectio Divina</div></div>';
+  html += '<div id="scripture-display-6"></div>';
+  html += '<div class="card">';
+  MOVEMENTS.forEach(mv => {
+    html += '<div style="margin-bottom:24px">';
+    html += '<div class="summary-title">' + mv.title + ' \u2014 ' + mv.subtitle + '</div>';
+    mv.fields.forEach(f => {
+      html += '<div class="summary-label">' + f.label + '</div>';
+      html += '<div id="review-' + f.id + '" class="summary-empty">(no entry)</div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<div class="nav-row"><button class="btn-back" onclick="goTo(5)">\u2190 Back to Actio</button></div>';
+  html += '<button class="btn-reset" onclick="resetAll()">Start New Lectio Divina</button>';
+  el.innerHTML = html;
+}
+
+/* ── Update scripture displays & review when navigating ── */
+const _origGoTo = goTo;
+goTo = function(s) {
+  // Update scripture in movement steps
+  for (let i = 1; i <= 6; i++) {
+    const sd = document.getElementById('scripture-display-' + i);
+    if (sd) sd.innerHTML = scriptureHTML();
+  }
+  // Update review entries
+  if (s === 6) {
+    MOVEMENTS.forEach(mv => {
+      mv.fields.forEach(f => {
+        const rev = document.getElementById('review-' + f.id);
+        const val = entries[f.id] || document.getElementById(f.id)?.value || '';
+        if (rev) {
+          rev.textContent = val || '(no entry)';
+          rev.className = val ? 'summary-text' : 'summary-empty';
+        }
+      });
+    });
+  }
+  _origGoTo(s);
+};
+
+/* ── Reset ── */
+function resetAll() {
+  if (!confirm('Start new? This clears all entries.')) return;
+  document.getElementById('scripture-ref').value = '';
+  document.getElementById('scripture-text').value = '';
+  MOVEMENTS.forEach(mv => {
+    mv.fields.forEach(f => {
+      const el = document.getElementById(f.id);
+      if (el) el.value = '';
+      entries[f.id] = '';
+    });
+  });
+  goTo(0);
+}
+
+/* ── Swipe Navigation ── */
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+  if (Math.abs(dx) > 60 && dy < 100) {
+    if (dx < 0 && currentStep < 6) goTo(currentStep + 1);
+    if (dx > 0 && currentStep > 0) goTo(currentStep - 1);
+  }
+}, { passive: true });
+
+/* ── Init ── */
+buildMovements();
+buildReview();
+updateProgress();
+</script>
+</body>
+</html>
